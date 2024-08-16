@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Capture and Analysis</title>
+    <style>
+        /* Same CSS as before */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Capture and Analyze Image</h1>
+        <button class="capture-button" onclick="captureImage()">Capture Image</button>
+        <input type="file" id="uploadInput" class="upload-input" />
+        <button class="upload-button" onclick="document.getElementById('uploadInput').click();">Upload Image</button>
+        <button class="analyze-button" onclick="analyzeImage()">Analyze Image</button>
+        <div id="result"></div>
+    </div>
+    <script>
+        function captureImage() {
+            fetch('http://192.168.77.236:5000/capture')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Image captured successfully!');
+                    } else {
+                        alert(`Failed to capture image: ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error occurred.');
+                });
+        }
+
+        function analyzeImage() {
+            const fileInput = document.getElementById('uploadInput');
+            if (fileInput.files.length === 0) {
+                alert('Please upload an image first.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            fetch('http://192.168.77.175:5001/analyze', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result) {
+                    document.getElementById('result').innerText = `Analysis result: ${data.result}`;
+                } else {
+                    document.getElementById('result').innerText = `Analysis error: ${data.error}`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error occurred during analysis.');
+            });
+        }
+    </script>
+</body>
+</html>
